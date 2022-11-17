@@ -1,0 +1,16 @@
+{
+  "name": "school_evolution_academy",
+  "version": "1.0.0",
+  "description": "school data files",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "Debayn Bain",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "joi": "^17.7.0",
+    "mysql": "^2.18.1"
+  }
+}
