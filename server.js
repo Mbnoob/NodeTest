@@ -1,18 +1,18 @@
 //..................................................all handellings............................................
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql");
 const app = express();
 const joi = require("joi");
-const port = 3000;
+const port = process.env.PORT;
 app.use(express.json());
 
 //..................................................MySQL Connections..........................................
 const myconnection = mysql.createConnection({
-  host: "localhost",
-  port: "3306",
-  user: "root",
-  password: "",
-  database: "school_evolution_academy",
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
 });
 
 myconnection.connect((err) => {
@@ -43,13 +43,16 @@ app.post("/students/insert", async (req, res) => {
     phone_no: joi
       .string()
       .regex(/^[0-9]{10}$/)
-      .required(),
+      .required()
+      .messages({
+        "string.pattern.base":
+          "Invalid ! phone number must have at last 10 characters long",
+      }),
     registration_no: joi
       .string()
       .regex(/^WB[0-9]{13}$/)
       .required()
       .messages({
-        "string.regex.base": "Must have WB characters",
         "string.pattern.base":
           "Invalid ! registration number must have at last 15 characters long",
       }),
@@ -66,20 +69,16 @@ app.post("/students/insert", async (req, res) => {
         if (err) {
           res.status(404).json({ status: 404, message: err.sqlMessage });
         } else {
-          res.status(200).json({ message: "Data Inserted Succesfully" });
+          res.status(200).json({ message: "Posted Succesfully" });
         }
       }
     );
   } catch (err) {
-    // res.status(422).json({ message: "Valdation Failed", error: err.message});
     let errors = [];
     err.details.forEach((element) => {
-      //let error = [];
-      //error.push({key:element.path[0],valu:element.message})
       errors.push({ key: element.path[0], valu: element.message });
     });
-    console.log("element", errors);
-    res.status(422).json({ errors: errors, message: err.message });
+    res.status(404).json({ errors: errors, message: err.message });
   }
 });
 
@@ -103,13 +102,16 @@ app.put("/students/:id", async (req, res) => {
     phone_no: joi
       .string()
       .regex(/^[0-9]{10}$/)
-      .required(),
+      .required()
+      .messages({
+        "string.pattern.base":
+          "Invalid ! phone number must have at last 10 characters long",
+      }),
     registration_no: joi
       .string()
       .regex(/^WB[0-9]{13}$/)
       .required()
       .messages({
-        "string.regex.base": "Must have WB characters",
         "string.pattern.base":
           "Invalid ! registration number must have at last 15 characters long",
       }),
@@ -124,13 +126,18 @@ app.put("/students/:id", async (req, res) => {
       [name, age, dob, gender, city, phone_no, registration_no, req.params.id],
       (err, results) => {
         if (err) {
+          res.status(404).json({ status: 404, message: err.sqlMessage });
         } else {
-          res.status(201).json({ message: "Data Edited Succesfully" });
+          res.status(201).json({ message: "Updated Succesfully" });
         }
       }
     );
   } catch (err) {
-    res.status(400).json({ message: "valication failed", errors: err });
+    let error = [];
+    err.details.forEach((element) => {
+      error.push({ key: element.path[0], valu: element.message });
+    });
+    res.status(404).json({ errors: error, message: err.message });
   }
 });
 
@@ -209,17 +216,12 @@ app.get("/subjects/get/:id", (req, res) => {
 //....................................To insert data(post) in the sunjects tables..............................
 app.post("/subjects/insert", async (req, res) => {
   const subjectSchema = joi.object({
-    sub_name: joi
-      .string()
-      .valid("Math", "English", "Geography", "History", "Zeology")
-      .required()
-      .label("Subject Name"),
+    sub_name: joi.string().required(),
     sub_code: joi.number().min(1).required(),
     start_time: joi
       .string()
       .regex(/^([0-1]{1}[0-9]{1}):([0-6]{2}([AaPp][Mm]{1}))$/)
       .required()
-      .label("Start-Time")
       .messages({
         "string.pattern.base":
           " 'Start-Time' is Invalid format ! criteria dose not match",
@@ -228,7 +230,6 @@ app.post("/subjects/insert", async (req, res) => {
       .string()
       .regex(/^([0-1]{1}[0-9]{1}):([0-6]{2}([AaPp][Mm]{1}))$/)
       .required()
-      .label("End-Time")
       .messages({
         "string.pattern.base":
           " 'End-Time' is Invalid format ! criteria dose not match",
@@ -237,11 +238,9 @@ app.post("/subjects/insert", async (req, res) => {
       .string()
       .regex(/^[A-Za-z]{1}[0-9]{2}$/)
       .required()
-      .label("Room Number")
       .messages({
         "string.pattern.base":
           " 'Room Number' is Invalid format ! criteria dose not match",
-        "string.empty": '"Room Number" is empty',
       }),
   });
 
@@ -260,15 +259,18 @@ app.post("/subjects/insert", async (req, res) => {
       [sub_name, sub_code, start_time, end_time, room_no],
       (err, results) => {
         if (err) {
+          res.status(404).json({ status: 404, message: err.sqlMessage });
         } else {
-          res.status(200).json({ message: "Inserted sucessful" });
+          res.status(200).json({ message: "Posted sucessful" });
         }
       }
     );
   } catch (err) {
-    res
-      .status(422)
-      .json({ error: [err.message], message: "valication failed" });
+    let error = [];
+    err.details.forEach((element) => {
+      error.push({ key: element.path[0], value: element.message });
+    });
+    res.status(404).json({ errors: error, message: err.message });
   }
 });
 
@@ -281,14 +283,32 @@ app.put("/subjects/:id", async (req, res) => {
   const room_no = req.body.room_no;
 
   const subjectSchema = joi.object({
-    sub_name: joi
-      .string()
-      .valid("Math", "English", "Geography", "History", "Zeology")
-      .required(),
+    sub_name: joi.string().required(),
     sub_code: joi.number().min(1).required(),
-    start_time: joi.string().required(),
-    end_time: joi.string().required(),
-    room_no: joi.string().min(1).max(3).required(),
+    start_time: joi
+      .string()
+      .regex(/^([0-1]{1}[0-9]{1}):([0-6]{2}([AaPp][Mm]{1}))$/)
+      .required()
+      .messages({
+        "string.pattern.base":
+          " 'Start-Time' is Invalid format ! criteria dose not match",
+      }),
+    end_time: joi
+      .string()
+      .regex(/^([0-1]{1}[0-9]{1}):([0-6]{2}([AaPp][Mm]{1}))$/)
+      .required()
+      .messages({
+        "string.pattern.base":
+          " 'end_time' is Invalid format ! criteria dose not match",
+      }),
+    room_no: joi
+      .string()
+      .regex(/^[A-Za-z]{1}[0-9]{2}$/)
+      .required()
+      .messages({
+        "string.pattern.base":
+          " 'Room Number' is Invalid format ! criteria dose not match",
+      }),
   });
   try {
     const value = await subjectSchema.validateAsync(req.body, {
@@ -299,13 +319,18 @@ app.put("/subjects/:id", async (req, res) => {
       [sub_name, sub_code, start_time, end_time, room_no, req.params.id],
       (err, results) => {
         if (err) {
+          res.status(404).json({ status: 404, message: err.sqlMessage });
         } else {
-          res.status(200).json({ message: "Data Updated Sucessfully" });
+          res.status(200).json({ message: "Updated Sucessfully" });
         }
       }
     );
   } catch (err) {
-    res.status(401).json({ message: "validation Failed", err: errors });
+    let error = [];
+    err.details.forEach((element) => {
+      error.push({ key: element.path[0], value: element.message });
+    });
+    res.status(404).json({ errors: error, message: err.message });
   }
 });
 
@@ -318,7 +343,7 @@ app.delete("/subjects/delete/:id", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.status(200).json({ message: "Data Deleted Succesfully" });
+        res.status(200).json({ message: "Deleted Succesfully" });
       }
     }
   );
@@ -326,21 +351,38 @@ app.delete("/subjects/delete/:id", (req, res) => {
 
 //....................................Started the part of student_subjects.....................................
 //......................................To Post data in student_subjects.......................................
-app.post("/studentSubjects/post", (req, res) => {
+app.post("/studentSubjects/post", async (req, res) => {
   const students_id = req.body.students_id;
   const subject_id = req.body.subject_id;
 
-  myconnection.query(
-    "INSERT INTO `student_subjects`(`students_id`, `subject_id`) VALUES (?, ?)",
-    [students_id, subject_id],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.status(200).json({ message: "Posted Succesfully" });
+  const student_subjectsSchema = joi.object({
+    students_id: joi.number().required(),
+    subject_id: joi.number().required(),
+  });
+
+  try {
+    const value = await student_subjectsSchema.validateAsync(req.body, {
+      abortEarly: false,
+    });
+
+    myconnection.query(
+      "INSERT INTO `student_subjects`(`students_id`, `subject_id`) VALUES (?, ?)",
+      [students_id, subject_id],
+      (err, results) => {
+        if (err) {
+          res.status(404).json({ status: 404, message: err.sqlMessage });
+        } else {
+          res.status(200).json({ message: "Posted Succesfully" });
+        }
       }
-    }
-  );
+    );
+  } catch (err) {
+    let error = [];
+    err.details.forEach((element) => {
+      error.push({ key: element.path[0], value: element.message });
+    });
+    res.status(404).json({ errors: error, messages: err.message });
+  }
 });
 //.............................................server status...................................................
 app.listen(port, (err) => {
