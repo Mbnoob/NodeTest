@@ -4,7 +4,7 @@
   "description": "school data files",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "Debayn Bain",
   "license": "ISC",
