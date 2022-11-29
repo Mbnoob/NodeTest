@@ -2,7 +2,6 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const joi = require("joi");
 const router = require("./controller/router");
 const port = process.env.PORT || 5000;
 app.use(express.json());
@@ -14,7 +13,7 @@ app.use("/stsb", router);
 //..............server status...............
 app.listen(port, (err) => {
   if (!err) {
-    console.log(` server is runnig on port no:`);
+    console.log(` server is runnig on port no 👉 ${port}`);
   } else {
     console.log(err);
   }

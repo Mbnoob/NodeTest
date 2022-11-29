@@ -10,7 +10,7 @@ const myconnection = mysql.createConnection({
 
   myconnection.connect((err) => {
     if (!err) {
-      console.log("Connected Succesfully On Port");
+      console.log("🎉 Connected Succesfully On Port 🎉");
     } else {
       console.log(err);
     }
