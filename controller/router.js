@@ -1,34 +1,58 @@
-const {userList,userlistbyId} = require("../users/studentsPart");
-const subjectsPart = require("../users/subjectsPart");
-const subject_studentPart = require("../users/subject&studentPart");
+const {
+  userList,
+  userlistbyId,
+  addUsers,
+  updateStudents,
+  userDeletbyid,
+} = require("../users/studentsPart");
+
+const {
+  subjectsList,
+  subjListbyid,
+  addSubjects,
+  updateSubjects,
+  deleteSubjects,
+} = require("../users/subjectsPart");
+
+const { addStu_sub } = require("../users/subject&studentPart");
+
+const { userLogin } = require("../users/loginUsers");
+
+const { checkToken } = require("../auth/validations");
+
 const express = require("express");
+
 const router = express.Router();
 
 //..........Students Part............
-router.get("/get", userList);
+router.get("/get", checkToken, userList);
 
-router.get("/get/:id", userlistbyId);
+router.get("/get/:id", checkToken, userlistbyId);
 
-// router.post("/insert", studentsPart.studentsData_insert);
+router.post("/insert", checkToken, addUsers);
 
-// router.put("/:id", studentsPart.studentsData_updated);
+router.delete("/delete/:id", checkToken, userDeletbyid);
 
-// router.delete("/delete/:id", studentsPart.studentsData_deleted);
+router.put("/:id", checkToken, updateStudents);
 
-// //.........Subjects Part..............
+//.........Subjects Part..............
 
-// router.get("/sb/get", subjectsPart.subjectGet_all);
+router.get("/sb/get", checkToken, subjectsList);
 
-// router.get("/sb/get/:id", subjectsPart.subjectGet_id);
+router.get("/sb/get/:id", checkToken, subjListbyid);
 
-// router.post("/sb/insert", subjectsPart.subjectData_insert);
+router.post("/sb/insert", checkToken, addSubjects);
 
-// router.put("/sb/:id", subjectsPart.subjectData_updated);
+router.put("/sb/:id", checkToken, updateSubjects);
 
-// router.delete("/sb/delete/:id", subjectsPart.subjectData_deleted);
+router.delete("/sb/delete/:id", checkToken, deleteSubjects);
 
-// //.........student_subjects.............
+//.........student_subjects.............
 
-// router.post("/post", subject_studentPart.foreigenKey_update);
+router.post("/post", checkToken, addStu_sub);
+
+//.........student_subjects.............
+
+router.post("/login", userLogin);
 
 module.exports = router;

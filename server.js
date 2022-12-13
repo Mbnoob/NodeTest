@@ -9,6 +9,7 @@ app.use(express.json());
 app.use("/student", router);
 app.use("/subject", router);
 app.use("/stsb", router);
+app.use("/", router);
 
 //..............server status...............
 app.listen(port, (err) => {
