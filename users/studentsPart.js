@@ -22,7 +22,7 @@ const userlistbyId = (req, res) => {
   });
 };
 
-const addUsers = async (req, res) => {
+const addUsers = (req, res) => {
   let data = req.body;
   const salt = genSaltSync(10);
   data.passwords = hashSync(data.passwords, salt);

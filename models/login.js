@@ -8,7 +8,7 @@ login.withLogin = (email, cb) => {
     [email],
     (err, results) => {
       if (err) {
-        console.log(err);
+        return cb(err);
       } else {
         return cb(results);
       }

@@ -20,6 +20,8 @@ const { userLogin } = require("../users/loginUsers");
 
 const { checkToken } = require("../auth/validations");
 
+const { userByname } = require("../users/findUsers");
+
 const express = require("express");
 
 const router = express.Router();
@@ -52,6 +54,8 @@ router.delete("/sb/delete/:id", checkToken, deleteSubjects);
 router.post("/post", checkToken, addStu_sub);
 
 //.........student_subjects.............
+
+router.post("/find", checkToken, userByname);
 
 router.post("/login", userLogin);
 
